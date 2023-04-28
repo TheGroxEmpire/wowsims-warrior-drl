@@ -78,3 +78,11 @@ getSpells.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_int]
 # getSpellCount
 getSpellCount = library.getSpellCount
 getSpellCount.restype = ctypes.c_int
+
+# getSpellMetrics
+getSpellMetrics = library.getSpellMetrics
+getSpellMetrics.restype = ctypes.c_char_p
+
+# FreeCString
+FreeCString = library.FreeCString
+FreeCString.argtypes = [ctypes.c_char_p]
