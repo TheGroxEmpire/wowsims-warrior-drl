@@ -1,7 +1,7 @@
 import ctypes
 import platform
 
-lib_file_path = 'wowsimwotlk-'
+lib_file_path = './wowsimwotlk-'
 if platform.system() == 'Linux':
     lib_file_path = lib_file_path + 'linux.so' 
 elif platform.system() == 'Darwin':
