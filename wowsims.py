@@ -22,7 +22,7 @@ trySpell.restype = ctypes.c_bool
 
 # doNothing
 doNothing = library.doNothing
-doNothing.argtypes = [ctypes.c_int]
+doNothing.restype = ctypes.c_bool
 
 # step
 step = library.step
