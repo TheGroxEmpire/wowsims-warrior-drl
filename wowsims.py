@@ -56,6 +56,10 @@ getUnitCount.restype = ctypes.c_int
 getRemainingDuration = library.getRemainingDuration
 getRemainingDuration.restype = ctypes.c_double
 
+# getRage
+getRage = library.getRage
+getRage.restype = ctypes.c_double
+
 # getEnergy
 getEnergy = library.getEnergy
 getEnergy.restype = ctypes.c_double
