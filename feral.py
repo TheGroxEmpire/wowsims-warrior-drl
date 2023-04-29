@@ -1,6 +1,24 @@
-import array
+import numpy as np
 import ctypes
+import json
 import wowsims
+
+_encoded_settings = None
+def Reset():
+    wowsims.new(_encoded_settings)
+    Auras.register()
+    TargetAuras.register()
+    Spells.register()
+
+def Load(interactive):
+    global _encoded_settings
+    f = open('data/feral.json')
+    settings = json.load(f)
+    settings['simOptions']['interactive'] = interactive
+    _encoded_settings = json.dumps(settings).encode('utf-8')
+    Reset()
+
+
 
 class Spells():
     Berserk = None
@@ -12,12 +30,12 @@ class Spells():
     Roar = None
     Rip = None
     Shred = None
-
+    
     @classmethod
     def register(cls):
         """Map from spell id to spellbook index and stores the result in a global with the spell's name."""
         num_spells = wowsims.getSpellCount()
-        spells = array.array('I', [0] * num_spells)
+        spells = np.array([0] * num_spells, dtype=np.int32)
         spells_ptr = (ctypes.c_int * len(spells)).from_buffer(spells)
         wowsims.getSpells(spells_ptr, len(spells))
         for i, spell in enumerate(spells):
@@ -30,10 +48,24 @@ class Spells():
             if spell == 52610 and cls.Roar is None: cls.Roar = i
             if spell == 49800 and cls.Rip is None: cls.Rip = i
             if spell == 48572 and cls.Shred is None: cls.Shred = i
+    
+    @classmethod
+    def registered_actions(cls):
+        actions = [
+            cls.Berserk, 
+            cls.Bite,
+            cls.FFF,
+            cls.Fury,
+            cls.Mangle,
+            cls.Rake,
+            cls.Roar,
+            cls.Rip,
+            cls.Shred] 
+        return [action for action in actions if action is not None]
 
 class Auras():
     Labels = ["Berserk", "Cat Form", "Clearcasting", "Savage Roar Aura", "Tiger's Fury Aura"]
-    Durations = array.array('d', [0.0] * len(Labels))
+    Durations = np.array([0.0] * len(Labels), dtype=np.float64)
 
     @classmethod
     def register(cls):
@@ -53,7 +85,7 @@ class Auras():
 
 class TargetAuras():
     Labels = ["Rake", "Rip", "Mangle"]
-    Durations = array.array('d', [0.0] * len(Labels))
+    Durations = np.array([0.0] * len(Labels), dtype=np.float64)
 
     @classmethod
     def register(cls):
