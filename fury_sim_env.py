@@ -48,5 +48,5 @@ class FurySimEnv(gym.Env):
         self.last_damage_done = damage_done
         observation = self._get_obs()
         dps = damage_done / SettingsGetDuration()
-        info = {'dps': dps}
+        info = {'dps': dps, 'spell metrics': wowsims.getSpellMetrics()}
         return observation, reward, terminated, truncated, info
