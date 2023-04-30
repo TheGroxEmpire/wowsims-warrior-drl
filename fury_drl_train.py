@@ -82,7 +82,7 @@ config = config.to_dict()
 result = tune.Tuner(algorithm_version,
         param_space=config,
         run_config=air.RunConfig(
-            stop={"episodes_total": 1000},
+            stop={"episodes_total": 10000},
             checkpoint_config=air.CheckpointConfig(
                 checkpoint_at_end=True,
             ),

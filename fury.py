@@ -35,8 +35,10 @@ class Spells():
     DeathWish = None 
     Recklessness = None 
     ShatteringThrow = None 
+    Bloodrage = None
     # Other CD is here so that the agent could control it
     EngiGlove = None
+    Bloodlust = None
 
 
     @classmethod
@@ -60,6 +62,8 @@ class Spells():
             if spell == 1719 and cls.Recklessness is None: cls.Recklessness = i
             if spell == 64382 and cls.ShatteringThrow is None: cls.ShatteringThrow = i
             if spell == 54758 and cls.EngiGlove is None: cls.EngiGlove = i
+            if spell == 2825 and cls.Bloodlust is None: cls.Bloodlust = i
+            if spell == 2687 and cls.Bloodrage is None: cls.Bloodrage = i
     
     @classmethod
     def registered_actions(cls):
@@ -69,14 +73,16 @@ class Spells():
             cls.Slam,
             cls.HeroicStrike,
             cls.Execute,
-            cls.Rend,
-            cls.Overpower,
-            cls.BattleStance,
-            cls.BerserkerStance,
+            # cls.Rend,
+            # cls.Overpower,
+            # cls.BattleStance,
+            # cls.BerserkerStance,
             cls.DeathWish,
             cls.Recklessness,
             cls.ShatteringThrow,
+            cls.Bloodrage,
             cls.EngiGlove,
+            cls.Bloodlust,
             ] 
         return [action for action in actions if action is not None]
 

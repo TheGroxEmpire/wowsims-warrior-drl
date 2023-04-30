@@ -37,16 +37,18 @@ class FurySimEnv(gym.Env):
     
     def step(self, action):
         truncated = False
+        cast = False
         terminated, needs_input = False, False
         while not (terminated or needs_input):
             needs_input = wowsims.needsInput()
             terminated = wowsims.step()
         if needs_input :
-            wowsims.trySpell(Spells.registered_actions()[action])
+            cast = wowsims.trySpell(Spells.registered_actions()[action])
         damage_done = wowsims.getDamageDone()
-        reward = (damage_done - self.last_damage_done) / 1000
+        reward = (damage_done - self.last_damage_done) / 1000 if cast else -10
         self.last_damage_done = damage_done
         observation = self._get_obs()
-        dps = damage_done / SettingsGetDuration()
-        info = {'dps': dps, 'spell metrics': wowsims.getSpellMetrics()}
+        current_time = wowsims.getCurrentTime()
+        dps = 0 if current_time <= 0 else damage_done / current_time
+        info = {'dps': dps, 'spell metrics': wowsims.getSpellMetrics(), 'debug log': [current_time, action, cast, reward*1000 if reward > 0 else 0, damage_done, observation[1]]}
         return observation, reward, terminated, truncated, info
