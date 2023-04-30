@@ -35,3 +35,14 @@ jobs:
       - name: Build
         run: |
           make clean && make nixlib && make winlib
+      
+      - name: Move Artifacts
+        run: |
+          mkdir libraries
+          mv wowsimwotlk-* libraries/
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: libraries
+          path: libraries
