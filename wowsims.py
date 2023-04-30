@@ -1,4 +1,5 @@
 import ctypes
+import json
 import platform
 
 lib_file_path = './wowsimwotlk-'
@@ -79,10 +80,21 @@ getSpells.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_int]
 getSpellCount = library.getSpellCount
 getSpellCount.restype = ctypes.c_int
 
+# getCooldowns
+getCooldowns = library.getCooldowns
+getCooldowns.argtypes = [ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_int), ctypes.c_int]
+
 # getSpellMetrics
-getSpellMetrics = library.getSpellMetrics
-getSpellMetrics.restype = ctypes.c_char_p
+_getSpellMetrics = library.getSpellMetrics
+_getSpellMetrics.restype = ctypes.POINTER(ctypes.c_char)
 
 # FreeCString
 FreeCString = library.FreeCString
-FreeCString.argtypes = [ctypes.c_char_p]
+FreeCString.argtypes = [ctypes.POINTER(ctypes.c_char)]
+
+def getSpellMetrics():
+    char_ptr = _getSpellMetrics()
+    string_ptr = ctypes.cast(char_ptr, ctypes.c_char_p)
+    cast_metrics = json.loads(string_ptr.value)
+    FreeCString(char_ptr)
+    return cast_metrics
