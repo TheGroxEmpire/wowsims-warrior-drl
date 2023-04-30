@@ -1,6 +1,26 @@
 import array
 import ctypes
 import wowsims
+import json
+
+_encoded_settings = None
+def Reset():
+    wowsims.new(_encoded_settings)
+    Auras.register()
+    TargetAuras.register()
+    Spells.register()
+
+def Load(interactive):
+    global _encoded_settings
+    f = open('data/fury-human-bis-p3.json')
+    settings = json.load(f)
+    settings['simOptions']['interactive'] = interactive
+    _encoded_settings = json.dumps(settings).encode('utf-8')
+    Reset()
+
+def SettingsGetDuration():
+    settings = json.loads(_encoded_settings)
+    return float(settings['encounter']['duration'])
 
 class Spells():
     Bloodthirst = None
@@ -16,8 +36,7 @@ class Spells():
     Recklessness = None 
     ShatteringThrow = None 
     # Other CD is here so that the agent could control it
-    EngiGlove = None 
-    Bloodlust = None
+    EngiGlove = None
 
 
     @classmethod
@@ -33,18 +52,36 @@ class Spells():
             if spell == 47475 and cls.Slam is None: cls.Slam = i
             if spell == 47450 and cls.HeroicStrike is None: cls.HeroicStrike = i
             if spell == 47471 and cls.Execute is None: cls.Execute = i
-            if spell == 47465 and cls.Rend is None: cls.Rend = i
-            if spell == 7384 and cls.Overpower is None: cls.Overpower = i
-            if spell == 2457 and cls.BattleStance is None: cls.BattleStance = i
-            if spell == 2458 and cls.BerserkerStance is None: cls.BerserkerStance = i
+            # if spell == 47465 and cls.Rend is None: cls.Rend = i
+            # if spell == 7384 and cls.Overpower is None: cls.Overpower = i
+            # if spell == 2457 and cls.BattleStance is None: cls.BattleStance = i
+            # if spell == 2458 and cls.BerserkerStance is None: cls.BerserkerStance = i
             if spell == 12292 and cls.DeathWish is None: cls.DeathWish = i
             if spell == 1719 and cls.Recklessness is None: cls.Recklessness = i
             if spell == 64382 and cls.ShatteringThrow is None: cls.ShatteringThrow = i
             if spell == 54758 and cls.EngiGlove is None: cls.EngiGlove = i
-            if spell == 2825 and cls.Bloodlust is None: cls.Bloodlust = i
+    
+    @classmethod
+    def registered_actions(cls):
+        actions = [
+            cls.Bloodthirst, 
+            cls.Whirlwind,
+            cls.Slam,
+            cls.HeroicStrike,
+            cls.Execute,
+            cls.Rend,
+            cls.Overpower,
+            cls.BattleStance,
+            cls.BerserkerStance,
+            cls.DeathWish,
+            cls.Recklessness,
+            cls.ShatteringThrow,
+            cls.EngiGlove,
+            ] 
+        return [action for action in actions if action is not None]
 
 class Auras():
-    Labels = ["Berserker Stance", "Battle Stance", "Bloodsurge Proc", "Recklessness", "Death Wish", "Overpower Aura"]
+    Labels = ["Bloodsurge Proc", "Recklessness", "Death Wish", "Overpower Aura"]
     Durations = array.array('d', [0.0] * len(Labels))
 
     @classmethod
@@ -62,6 +99,7 @@ class Auras():
     @classmethod
     def get_dur(cls, label):
         return cls.Durations[cls.Labels.index(label)]
+        
 
 class TargetAuras():
     Labels = ["Rend"]
@@ -82,3 +120,4 @@ class TargetAuras():
     @classmethod
     def get_dur(cls, label):
         return cls.Durations[cls.Labels.index(label)]
+        
