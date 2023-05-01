@@ -45,7 +45,7 @@ class Spells():
             if spell == 48577 and cls.Bite is None: cls.Bite = i
             if spell == 16857 and cls.FFF is None: cls.FFF = i
             if spell == 50213 and cls.Fury is None: cls.Fury = i
-            if spell == 71925 and cls.Mangle is None: cls.Mangle = i
+            if spell == 48566 and cls.Mangle is None: cls.Mangle = i
             if spell == 48574 and cls.Rake is None: cls.Rake = i
             if spell == 52610 and cls.Roar is None: cls.Roar = i
             if spell == 49800 and cls.Rip is None: cls.Rip = i

@@ -1,0 +1,48 @@
+name: Build the wowsims/wotlk libraries
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Install gcc
+        run: sudo apt-get install -y mingw-w64
+        
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18.x
+        
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Install Protoc Go plugin
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+        
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: wowsims/wotlk
+          ref: master
+            
+      - name: Build
+        run: |
+          make clean && make nixlib && make winlib
+      
+      - name: Move Artifacts
+        run: |
+          mkdir libraries
+          mv wowsimwotlk-* libraries/
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: libraries
+          path: libraries

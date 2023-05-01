@@ -16,6 +16,17 @@ library = ctypes.cdll.LoadLibrary(lib_file_path)
 new = library.new
 new.argtypes = [ctypes.c_char_p]
 
+# runSim
+_runSim = library.runSim
+_runSim.argtypes = [ctypes.c_char_p]
+_runSim.restype = ctypes.POINTER(ctypes.c_char)
+def runSim(requestJson):
+    char_ptr = _runSim(json.dumps(requestJson).encode('utf-8'))
+    string_ptr = ctypes.cast(char_ptr, ctypes.c_char_p)
+    result = json.loads(string_ptr.value)
+    FreeCString(char_ptr)
+    return result
+
 # trySpell
 trySpell = library.trySpell
 trySpell.argtypes = [ctypes.c_int]
