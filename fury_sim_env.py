@@ -14,18 +14,20 @@ class FurySimEnv(gym.Env):
         # Rage + sim duration shape count
         other_count = 2
         Spells.register()
+        spells_count = len(Spells.registered_actions())
 
         self.last_damage_done = 0
 
-        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(aura_count+target_aura_count+other_count,), dtype=np.float64)
+        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(aura_count+target_aura_count+other_count+spells_count,), dtype=np.float64)
 
-        self.action_space = spaces.Discrete(len(Spells.registered_actions()))
+        self.action_space = spaces.Discrete(spells_count)
 
     def _get_obs(self):
         Auras.update()
         TargetAuras.update()
+        Spells.update()
         resources = np.array([wowsims.getRemainingDuration(), wowsims.getRage()], dtype=np.float64)
-        return np.concatenate((resources, Auras.Durations, TargetAuras.Durations))
+        return np.concatenate((resources, Auras.Durations, TargetAuras.Durations, Spells.Cooldowns))
     
     def reset(self, seed=None, options=None):
         super().reset(seed=seed, options=options)
@@ -42,13 +44,16 @@ class FurySimEnv(gym.Env):
         while not (terminated or needs_input):
             needs_input = wowsims.needsInput()
             terminated = wowsims.step()
+        
         if needs_input :
             cast = wowsims.trySpell(Spells.registered_actions()[action])
+        
         damage_done = wowsims.getDamageDone()
-        reward = (damage_done - self.last_damage_done) / 1000 if cast else -10
+        reward = (damage_done - self.last_damage_done) / 5000
         self.last_damage_done = damage_done
         observation = self._get_obs()
         current_time = wowsims.getCurrentTime()
         dps = 0 if current_time <= 0 else damage_done / current_time
-        info = {'dps': dps, 'spell metrics': wowsims.getSpellMetrics(), 'debug log': [current_time, action, cast, reward*1000 if reward > 0 else 0, damage_done, observation[1]]}
+        info = {'dps': dps, 'spell metrics': wowsims.getSpellMetrics(), 'debug log': [current_time, action, cast, reward*5000, damage_done, observation[1]]}
+            
         return observation, reward, terminated, truncated, info

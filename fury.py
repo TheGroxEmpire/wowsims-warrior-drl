@@ -2,6 +2,7 @@ import array
 import ctypes
 import wowsims
 import json
+import numpy as np
 
 _encoded_settings = None
 def Reset():
@@ -40,6 +41,8 @@ class Spells():
     EngiGlove = None
     Bloodlust = None
 
+    Cooldowns = None
+
 
     @classmethod
     def register(cls):
@@ -64,6 +67,7 @@ class Spells():
             if spell == 54758 and cls.EngiGlove is None: cls.EngiGlove = i
             if spell == 2825 and cls.Bloodlust is None: cls.Bloodlust = i
             if spell == 2687 and cls.Bloodrage is None: cls.Bloodrage = i
+        cls.Cooldowns = np.array([0.0] * len(cls.registered_actions()))
     
     @classmethod
     def registered_actions(cls):
@@ -85,6 +89,13 @@ class Spells():
             cls.Bloodlust,
             ] 
         return [action for action in actions if action is not None]
+    
+    @classmethod
+    def update(cls):
+        actions = np.array(cls.registered_actions(), dtype=np.int32)
+        cds_ptr = (ctypes.c_double * len(actions)).from_buffer(cls.Cooldowns)
+        actions_ptr = (ctypes.c_int * len(actions)).from_buffer(actions)
+        wowsims.getCooldowns(cds_ptr, actions_ptr, len(actions))
 
 class Auras():
     Labels = ["Bloodsurge Proc", "Recklessness", "Death Wish", "Overpower Aura"]

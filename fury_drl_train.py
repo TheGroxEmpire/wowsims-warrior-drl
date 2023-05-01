@@ -1,8 +1,9 @@
 import os
-from typing import Dict, Tuple
+from typing import Dict
 
 import gymnasium as gym
 from fury_sim_env import FurySimEnv
+
 from ray import air, tune
 from ray.tune import CLIReporter
 from ray.rllib.policy import Policy
@@ -10,6 +11,7 @@ from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
 from ray.rllib.evaluation import Episode, RolloutWorker
+
 
 class MyCallbacks(DefaultCallbacks):
     def on_episode_start(
@@ -76,13 +78,19 @@ config.environment(env="FurySimEnv")
 config.rollouts(num_rollout_workers=11)
 config.callbacks(MyCallbacks)
 config.enable_connectors = False
+config.train_batch_size = 10000
+config.training(lambda_= tune.grid_search([0.95, 1]),
+                sgd_minibatch_size= tune.grid_search([500, 1000]),
+                num_sgd_iter=tune.grid_search([10, 20]),
+                entropy_coeff= tune.grid_search([0, 0.01]),
+                kl_coeff= tune.grid_search([0.3, 0.5]))
 
 config = config.to_dict()
 
 result = tune.Tuner(algorithm_version,
         param_space=config,
         run_config=air.RunConfig(
-            stop={"episodes_total": 10000},
+            stop={"episodes_total": 1000},
             checkpoint_config=air.CheckpointConfig(
                 checkpoint_at_end=True,
             ),
