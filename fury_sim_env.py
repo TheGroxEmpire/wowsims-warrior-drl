@@ -14,13 +14,13 @@ class FurySimEnv(gym.Env):
         # Rage + sim duration shape count
         other_count = 2
         Spells.register()
-        spells_count = len(Spells.registered_actions())
+        self.spells_count = len(Spells.registered_actions())
 
         self.last_damage_done = 0
 
-        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(aura_count+target_aura_count+other_count+spells_count,), dtype=np.float64)
-
-        self.action_space = spaces.Discrete(spells_count)
+        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(aura_count+target_aura_count+other_count+self.spells_count,), dtype=np.float64)
+        # Last action is reserved for doNothing()
+        self.action_space = spaces.Discrete(self.spells_count+1)
 
     def _get_obs(self):
         Auras.update()
@@ -46,14 +46,22 @@ class FurySimEnv(gym.Env):
             terminated = wowsims.step()
         
         if needs_input :
-            cast = wowsims.trySpell(Spells.registered_actions()[action])
+            # Last index of action means DoNothing
+            if action == self.spells_count:
+                cast = wowsims.doNothing()
+            else :
+                cast = wowsims.trySpell(Spells.registered_actions()[action])
         
         damage_done = wowsims.getDamageDone()
-        reward = (damage_done - self.last_damage_done) / 5000
-        self.last_damage_done = damage_done
-        observation = self._get_obs()
         current_time = wowsims.getCurrentTime()
         dps = 0 if current_time <= 0 else damage_done / current_time
-        info = {'dps': dps, 'spell metrics': wowsims.getSpellMetrics(), 'debug log': [current_time, action, cast, reward*5000, damage_done, observation[1]]}
+        damage_this_step = damage_done - self.last_damage_done
+        self.last_damage_done = damage_done
+
+        reward = dps / 10000
+
+        observation = self._get_obs()
+        
+        info = {'dps': dps, 'spell metrics': wowsims.getSpellMetrics(), 'debug log': [current_time, action, cast, damage_this_step, damage_done, observation[1]]}
             
         return observation, reward, terminated, truncated, info

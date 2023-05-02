@@ -11,6 +11,7 @@ from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
 from ray.rllib.evaluation import Episode, RolloutWorker
+from ray.rllib.algorithms.algorithm import Algorithm
 
 
 class MyCallbacks(DefaultCallbacks):
@@ -68,7 +69,7 @@ os.environ["TUNE_ORIG_WORKING_DIR"] = os.getcwd()
 register_env("FurySimEnv", env_creator)
 
 algorithm_version = 'PPO'
-comment_suffix = "Fury"
+comment_suffix = "dps-reward"
 
 config = PPOConfig()
 
@@ -79,18 +80,26 @@ config.rollouts(num_rollout_workers=11)
 config.callbacks(MyCallbacks)
 config.enable_connectors = False
 config.train_batch_size = 10000
-config.training(lambda_= tune.grid_search([0.95, 1]),
-                sgd_minibatch_size= tune.grid_search([500, 1000]),
-                num_sgd_iter=tune.grid_search([10, 20]),
-                entropy_coeff= tune.grid_search([0, 0.01]),
-                kl_coeff= tune.grid_search([0.3, 0.5]))
+# config.training(lambda_= tune.grid_search([0.95, 1]),
+#                 sgd_minibatch_size= tune.grid_search([500, 1000]),
+#                 num_sgd_iter=tune.grid_search([10, 20]),
+#                 entropy_coeff= tune.grid_search([0, 0.01]),
+#                 kl_coeff= tune.grid_search([0.3, 0.5]))
+
+# Optimized from above grid_search
+config.training(lambda_= 1,
+                sgd_minibatch_size= 500,
+                num_sgd_iter= 10,
+                entropy_coeff= 0.01,
+                kl_coeff= 0.3,
+                )
 
 config = config.to_dict()
 
 result = tune.Tuner(algorithm_version,
-        param_space=config,
-        run_config=air.RunConfig(
-            stop={"episodes_total": 1000},
+            param_space=config,
+            run_config=air.RunConfig(
+            stop={"episodes_total": 50000},
             checkpoint_config=air.CheckpointConfig(
                 checkpoint_at_end=True,
             ),

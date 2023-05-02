@@ -53,20 +53,20 @@ class Spells():
         wowsims.getSpells(spells_ptr, len(spells))
         for i, spell in enumerate(spells):
             if spell == 23881 and cls.Bloodthirst is None: cls.Bloodthirst = i
-            if spell == 1680 and cls.Whirlwind is None: cls.Whirlwind = i
-            if spell == 47475 and cls.Slam is None: cls.Slam = i
-            if spell == 47450 and cls.HeroicStrike is None: cls.HeroicStrike = i
-            if spell == 47471 and cls.Execute is None: cls.Execute = i
-            # if spell == 47465 and cls.Rend is None: cls.Rend = i
-            # if spell == 7384 and cls.Overpower is None: cls.Overpower = i
-            # if spell == 2457 and cls.BattleStance is None: cls.BattleStance = i
-            # if spell == 2458 and cls.BerserkerStance is None: cls.BerserkerStance = i
-            if spell == 12292 and cls.DeathWish is None: cls.DeathWish = i
-            if spell == 1719 and cls.Recklessness is None: cls.Recklessness = i
-            if spell == 64382 and cls.ShatteringThrow is None: cls.ShatteringThrow = i
-            if spell == 54758 and cls.EngiGlove is None: cls.EngiGlove = i
-            if spell == 2825 and cls.Bloodlust is None: cls.Bloodlust = i
-            if spell == 2687 and cls.Bloodrage is None: cls.Bloodrage = i
+            elif spell == 1680 and cls.Whirlwind is None: cls.Whirlwind = i
+            elif spell == 47475 and cls.Slam is None: cls.Slam = i
+            elif spell == 47450 and cls.HeroicStrike is None: cls.HeroicStrike = i
+            elif spell == 47471 and cls.Execute is None: cls.Execute = i
+            # elif spell == 47465 and cls.Rend is None: cls.Rend = i
+            # elif spell == 7384 and cls.Overpower is None: cls.Overpower = i
+            # elif spell == 2457 and cls.BattleStance is None: cls.BattleStance = i
+            # elif spell == 2458 and cls.BerserkerStance is None: cls.BerserkerStance = i
+            elif spell == 12292 and cls.DeathWish is None: cls.DeathWish = i
+            elif spell == 1719 and cls.Recklessness is None: cls.Recklessness = i
+            elif spell == 64382 and cls.ShatteringThrow is None: cls.ShatteringThrow = i
+            elif spell == 54758 and cls.EngiGlove is None: cls.EngiGlove = i
+            elif spell == 2825 and cls.Bloodlust is None: cls.Bloodlust = i
+            elif spell == 2687 and cls.Bloodrage is None: cls.Bloodrage = i
         cls.Cooldowns = np.array([0.0] * len(cls.registered_actions()))
     
     @classmethod
