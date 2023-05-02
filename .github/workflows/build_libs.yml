@@ -45,7 +45,7 @@ jobs:
           cd wowsims
           make clean && make nixlib
           make clean && make winlib
-          cd..
+          cd ..
       
       - name: Move Artifacts
         run: |
