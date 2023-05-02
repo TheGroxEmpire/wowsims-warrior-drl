@@ -163,3 +163,4 @@ debug_logs/.~lock.debug_log_1.csv\#
 
 #Saved models
 models/
+*.csv#
