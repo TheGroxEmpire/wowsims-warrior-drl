@@ -98,7 +98,7 @@ class Spells():
         wowsims.getCooldowns(cds_ptr, actions_ptr, len(actions))
 
 class Auras():
-    Labels = ["Bloodsurge Proc", "Recklessness", "Death Wish", "Overpower Aura"]
+    Labels = ["Bloodsurge Proc", "Recklessness", "Death Wish", "Overpower Aura", "HS Queue Aura", "Hyperspeed Acceleration", "Bloodlust"]
     Durations = array.array('d', [0.0] * len(Labels))
 
     @classmethod
@@ -119,7 +119,7 @@ class Auras():
         
 
 class TargetAuras():
-    Labels = ["Rend"]
+    Labels = ["Rend", "Shattering Throw"]
     Durations = array.array('d', [0.0] * len(Labels))
 
     @classmethod
@@ -137,4 +137,12 @@ class TargetAuras():
     @classmethod
     def get_dur(cls, label):
         return cls.Durations[cls.Labels.index(label)]
-        
+
+class AutoAttacks():
+    MeleeSwingTime = array.array('d', [0.0] * 2)
+
+    @classmethod
+    def get_swing_time(cls):
+        ptr = (ctypes.c_double * len(cls.MeleeSwingTime)).from_buffer(cls.MeleeSwingTime)
+        wowsims.getMeleeSwingTime(ptr)
+        return cls.MeleeSwingTime

@@ -62,44 +62,53 @@ class MyCallbacks(DefaultCallbacks):
         episode.custom_metrics["dps"] = dps
 
 def env_creator(env_config):
-    return FurySimEnv(...)
+    return FurySimEnv(env_config)
 
 os.environ["TUNE_ORIG_WORKING_DIR"] = os.getcwd()
 
-register_env("FurySimEnv", env_creator)
+
 
 algorithm_version = 'PPO'
-comment_suffix = "dps-reward"
+comment_suffix = "dps-reward-coef"
 
 config = PPOConfig()
 
 config.num_gpus = 0
 config.log_level = "INFO"
 config.environment(env="FurySimEnv")
+config.env_config = {"reward_time_factor" : 0,
+                     "dps_reward_coef": tune.grid_search([1, 100, 1000])}
+config.batch_mode = "complete_episodes"
 config.rollouts(num_rollout_workers=11)
 config.callbacks(MyCallbacks)
 config.enable_connectors = False
 config.train_batch_size = 10000
-# config.training(lambda_= tune.grid_search([0.95, 1]),
-#                 sgd_minibatch_size= tune.grid_search([500, 1000]),
-#                 num_sgd_iter=tune.grid_search([10, 20]),
-#                 entropy_coeff= tune.grid_search([0, 0.01]),
-#                 kl_coeff= tune.grid_search([0.3, 0.5]))
+# config.training(
+                # lambda_= tune.grid_search([0.9, 0.95, 1]),
+                # sgd_minibatch_size=tune.grid_search([500, 1000, 1500]),
+                # num_sgd_iter=tune.grid_search([10, 20, 30]),
+                # entropy_coeff= tune.grid_search([0, 0.005, 0.01]),
+                # kl_coeff= tune.grid_search([0.3, 0.4, 0.5]),
+                # clip_param= tune.grid_search([0.1, 0.2, 0.3])
+                # )
 
-# Optimized from above grid_search
-config.training(lambda_= 1,
+config.training(
+                lambda_= 0.95,
                 sgd_minibatch_size= 500,
                 num_sgd_iter= 10,
-                entropy_coeff= 0.01,
-                kl_coeff= 0.3,
+                entropy_coeff= 0.0,
+                kl_coeff= 0.5,
+                clip_param= 0.3
                 )
+
+register_env("FurySimEnv", env_creator)
 
 config = config.to_dict()
 
 result = tune.Tuner(algorithm_version,
             param_space=config,
             run_config=air.RunConfig(
-            stop={"episodes_total": 50000},
+            stop={"episodes_total": 5000},
             checkpoint_config=air.CheckpointConfig(
                 checkpoint_at_end=True,
             ),

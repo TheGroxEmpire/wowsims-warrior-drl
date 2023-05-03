@@ -60,6 +60,10 @@ getAuras.argtypes = [ctypes.POINTER(ctypes.c_double), ctypes.c_int]
 getTargetAuras = library.getTargetAuras
 getTargetAuras.argtypes = [ctypes.POINTER(ctypes.c_double), ctypes.c_int]
 
+# getMeleeSwingTime
+getMeleeSwingTime = library.getMeleeSwingTime
+getMeleeSwingTime.argtypes = [ctypes.POINTER(ctypes.c_double)]
+
 # getUnits
 getUnitCount = library.getUnitCount
 getUnitCount.restype = ctypes.c_int
@@ -67,6 +71,10 @@ getUnitCount.restype = ctypes.c_int
 # getRemainingDuration
 getRemainingDuration = library.getRemainingDuration
 getRemainingDuration.restype = ctypes.c_double
+
+# getIterationDuration
+getIterationDuration = library.getIterationDuration
+getIterationDuration.restype = ctypes.c_double
 
 # getCurrentTime
 getCurrentTime = library.getCurrentTime
