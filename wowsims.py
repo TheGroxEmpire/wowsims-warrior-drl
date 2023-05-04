@@ -27,6 +27,17 @@ def runSim(requestJson):
     FreeCString(char_ptr)
     return result
 
+# computeStats
+_computeStats = library.computeStats
+_computeStats.argtypes = [ctypes.c_char_p]
+_computeStats.restype = ctypes.POINTER(ctypes.c_char)
+def computeStats(requestJson):
+    char_ptr = _computeStats(json.dumps(requestJson).encode('utf-8'))
+    string_ptr = ctypes.cast(char_ptr, ctypes.c_char_p)
+    result = json.loads(string_ptr.value)
+    FreeCString(char_ptr)
+    return result
+
 # trySpell
 trySpell = library.trySpell
 trySpell.argtypes = [ctypes.c_int]
