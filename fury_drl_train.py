@@ -2,7 +2,9 @@ import os
 from typing import Dict
 
 import gymnasium as gym
+from gymnasium.wrappers import FrameStack
 from fury_sim_env import FurySimEnv
+from gymnasium.envs.registration import register
 
 from ray import air, tune
 from ray.tune import CLIReporter
@@ -61,23 +63,16 @@ class MyCallbacks(DefaultCallbacks):
         )
         episode.custom_metrics["dps"] = dps
 
-def env_creator(env_config):
-    return FurySimEnv(env_config)
-
 os.environ["TUNE_ORIG_WORKING_DIR"] = os.getcwd()
 
-
-
 algorithm_version = 'PPO'
-comment_suffix = "dps-reward-coef"
+comment_suffix = "bloodsurge-reward-0.5"
 
 config = PPOConfig()
 
 config.num_gpus = 0
 config.log_level = "INFO"
 config.environment(env="FurySimEnv")
-config.env_config = {"reward_time_factor" : 0,
-                     "dps_reward_coef": tune.grid_search([1, 100, 1000])}
 config.batch_mode = "complete_episodes"
 config.rollouts(num_rollout_workers=11)
 config.callbacks(MyCallbacks)
@@ -101,14 +96,21 @@ config.training(
                 clip_param= 0.3
                 )
 
-register_env("FurySimEnv", env_creator)
+
+register(id="FurySimEnv", entry_point="fury_sim_env:FurySimEnv")
+env = gym.make("FurySimEnv")
+env_creator = lambda config: FurySimEnv(...)
+# env_creator = lambda config: FrameStack(env, 10)
+
+
+register_env("FurySimEnv", env_creator=env_creator)
 
 config = config.to_dict()
 
 result = tune.Tuner(algorithm_version,
             param_space=config,
             run_config=air.RunConfig(
-            stop={"episodes_total": 5000},
+            stop={"episodes_total": 10000},
             checkpoint_config=air.CheckpointConfig(
                 checkpoint_at_end=True,
             ),

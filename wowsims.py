@@ -80,6 +80,10 @@ getIterationDuration.restype = ctypes.c_double
 getCurrentTime = library.getCurrentTime
 getCurrentTime.restype = ctypes.c_double
 
+#getGcdReadyTime
+getGcdReadyTime = library.getGcdReadyTime
+getGcdReadyTime.restype = ctypes.c_double
+
 # getRage
 getRage = library.getRage
 getRage.restype = ctypes.c_double

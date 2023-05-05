@@ -4,24 +4,22 @@ import wowsims
 import json
 import numpy as np
 
-_encoded_settings = None
-def Reset():
-    wowsims.new(_encoded_settings)
-    Auras.register()
-    TargetAuras.register()
-    Spells.register()
+class Settings():
+    def __init__(self):
+        self._encoded_settings = None
 
-def Load(interactive):
-    global _encoded_settings
-    f = open('data/fury-human-bis-p3.json')
-    settings = json.load(f)
-    settings['simOptions']['interactive'] = interactive
-    _encoded_settings = json.dumps(settings).encode('utf-8')
-    Reset()
+    def Reset(self):
+        wowsims.new(self._encoded_settings)
+        Auras.register()
+        TargetAuras.register()
+        Spells.register()
 
-def SettingsGetDuration():
-    settings = json.loads(_encoded_settings)
-    return float(settings['encounter']['duration'])
+    def Load(self, interactive):
+        f = open('data/fury-human-bis-p3.json')
+        settings = json.load(f)
+        settings['simOptions']['interactive'] = interactive
+        self._encoded_settings = json.dumps(settings).encode('utf-8')
+        self.Reset()
 
 class Spells():
     Bloodthirst = None
