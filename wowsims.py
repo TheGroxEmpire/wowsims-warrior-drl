@@ -38,6 +38,18 @@ def computeStats(requestJson):
     FreeCString(char_ptr)
     return result
 
+# encodeSettings
+_encodeSettings = library.encodeSettings
+_encodeSettings.argtypes = [ctypes.c_char_p]
+_encodeSettings.restype = ctypes.POINTER(ctypes.c_char)
+def encodeSettings(requestJson):
+    char_ptr = _encodeSettings(json.dumps(requestJson).encode('utf-8'))
+    string_ptr = ctypes.cast(char_ptr, ctypes.c_char_p)
+    result = str(string_ptr.value, 'utf-8')
+    FreeCString(char_ptr)
+    return result
+
+
 # trySpell
 trySpell = library.trySpell
 trySpell.argtypes = [ctypes.c_int]
