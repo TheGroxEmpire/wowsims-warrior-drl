@@ -26,23 +26,37 @@ jobs:
       - name: Install Protoc Go plugin
         run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
         
-      - name: Checkout
+      - name: Checkout wowsims
         uses: actions/checkout@v3
         with:
           repository: wowsims/wotlk
           ref: master
+          path: wowsims
+          
+      - name: Checkout pywowsims
+        uses: actions/checkout@v3
+        with:
+          repository: b-r-a-n/pywowsims
+          ref: main
+          path: pywowsims
             
       - name: Build
         run: |
-          make clean && make nixlib && make winlib
+          cd wowsims
+          make clean && make nixlib
+          make clean && make winlib
+          cd ..
       
       - name: Move Artifacts
         run: |
-          mkdir libraries
-          mv wowsimwotlk-* libraries/
+          mv wowsims/wowsimwotlk-windows.dll pywowsims/
+          mv wowsims/wowsimwotlk-linux.so pywowsims/
       
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: libraries
-          path: libraries
+      - name: Commit changes
+        run: |
+          cd pywowsims
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "[Auto] Update library binaries"
+          git push

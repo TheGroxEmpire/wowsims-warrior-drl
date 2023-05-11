@@ -72,6 +72,11 @@ class Spells():
         cds_ptr = (ctypes.c_double * len(actions)).from_buffer(cls.Cooldowns)
         actions_ptr = (ctypes.c_int * len(actions)).from_buffer(actions)
         wowsims.getCooldowns(cds_ptr, actions_ptr, len(actions))
+    
+    @classmethod
+    def get_cd(cls, spellbook_index):
+        cd_index = cls.registered_actions().index(spellbook_index)
+        return cls.Cooldowns[cd_index]
 
 class Auras():
     Labels = ["Berserk", "Cat Form", "Clearcasting", "Savage Roar Aura", "Tiger's Fury Aura"]

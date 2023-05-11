@@ -1,3 +1,4 @@
+import array
 import ctypes
 import json
 import platform
@@ -24,6 +25,45 @@ def runSim(requestJson):
     char_ptr = _runSim(json.dumps(requestJson).encode('utf-8'))
     string_ptr = ctypes.cast(char_ptr, ctypes.c_char_p)
     result = json.loads(string_ptr.value)
+    FreeCString(char_ptr)
+    return result
+
+# computeStats
+_computeStats = library.computeStats
+_computeStats.argtypes = [ctypes.c_char_p]
+_computeStats.restype = ctypes.POINTER(ctypes.c_char)
+def computeStats(requestJson):
+    char_ptr = _computeStats(json.dumps(requestJson).encode('utf-8'))
+    string_ptr = ctypes.cast(char_ptr, ctypes.c_char_p)
+    result = json.loads(string_ptr.value)
+    FreeCString(char_ptr)
+    return result
+
+# encodeSettings
+_encodeSettings = library.encodeSettings
+_encodeSettings.argtypes = [ctypes.c_char_p]
+_encodeSettings.restype = ctypes.POINTER(ctypes.c_char)
+def encodeSettings(requestJson):
+    char_ptr = _encodeSettings(json.dumps(requestJson).encode('utf-8'))
+    string_ptr = ctypes.cast(char_ptr, ctypes.c_char_p)
+    result = str(string_ptr.value, 'utf-8')
+    FreeCString(char_ptr)
+    return result
+
+# getDatabase
+_getDatabase = library.getDatabase
+_getDatabase.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.c_int]
+_getDatabase.restype = ctypes.POINTER(ctypes.c_char)
+def getDatabase(itemIds, enchantIds, gemIds):
+    ids = array.array('I', itemIds)
+    ids_ptr = (ctypes.c_int * len(itemIds)).from_buffer(ids)
+    eids = array.array('I', enchantIds)
+    eids_ptr = (ctypes.c_int * len(enchantIds)).from_buffer(eids)
+    gids = array.array('I', gemIds)
+    gids_ptr = (ctypes.c_int * len(gemIds)).from_buffer(gids)
+    char_ptr = _getDatabase(ids_ptr, len(itemIds), eids_ptr, len(enchantIds), gids_ptr, len(gemIds))
+    string_ptr = ctypes.cast(char_ptr, ctypes.c_char_p)
+    result = str(string_ptr.value, 'utf-8')
     FreeCString(char_ptr)
     return result
 
