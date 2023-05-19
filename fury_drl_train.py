@@ -1,40 +1,26 @@
 import os
+import numpy as np
 from typing import Dict
 
 import gymnasium as gym
 from gymnasium.wrappers import FrameStack
+from ray.rllib.algorithms.algorithm import Algorithm
 from fury_sim_env import FurySimEnv
 from gymnasium.envs.registration import register
 
+import ray
 from ray import air, tune
 from ray.tune import CLIReporter
 from ray.rllib.policy import Policy
 from ray.rllib.algorithms.ppo import PPOConfig
+from ray.rllib.algorithms.apex_dqn import ApexDQNConfig
+from ray.rllib.algorithms.impala import ImpalaConfig
 from ray.tune.registry import register_env
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
 from ray.rllib.evaluation import Episode, RolloutWorker
-from ray.rllib.algorithms.algorithm import Algorithm
 
 
 class MyCallbacks(DefaultCallbacks):
-    def on_episode_start(
-        self,
-        *,
-        worker: RolloutWorker,
-        base_env: gym.Env,
-        policies: Dict[str, Policy],
-        episode: Episode,
-        env_index: int,
-        **kwargs
-    ):
-        # Make sure this episode has just been started (only initial obs
-        # logged so far).
-        assert episode.length == 0, (
-            "ERROR: `on_episode_start()` callback should be called right "
-            "after env reset!"
-        )
-        print("episode {} (env-idx={}) started.".format(episode.episode_id, env_index))
-
     def on_episode_end(
         self,
         *,
@@ -55,20 +41,21 @@ class MyCallbacks(DefaultCallbacks):
                 "ERROR: `on_episode_end()` should only be called "
                 "after episode is done!"
             )
-        dps = episode.last_info_for()["dps"]
-        print(
-            "episode {} (env-idx={}) ended with length {} and {} dps".format(
-                episode.episode_id, env_index, episode.length, dps
-            )
-        )
+        dps = episode._last_infos.get("agent0")["dps"]
         episode.custom_metrics["dps"] = dps
 
 os.environ["TUNE_ORIG_WORKING_DIR"] = os.getcwd()
 
 algorithm_version = 'PPO'
-comment_suffix = "bloodsurge-reward-0.5"
+comment_suffix = "baseline"
 
-config = PPOConfig()
+algorithm_config = {
+    'PPO': PPOConfig(),
+    'APEX': ApexDQNConfig(),
+    'IMPALA': ImpalaConfig()
+}
+
+config = algorithm_config[algorithm_version]
 
 config.num_gpus = 0
 config.log_level = "INFO"
@@ -76,16 +63,16 @@ config.environment(env="FurySimEnv")
 config.batch_mode = "complete_episodes"
 config.rollouts(num_rollout_workers=11)
 config.callbacks(MyCallbacks)
-config.enable_connectors = False
-config.train_batch_size = 10000
+# config.enable_connectors = False
+config.train_batch_size = 100000
 # config.training(
-                # lambda_= tune.grid_search([0.9, 0.95, 1]),
-                # sgd_minibatch_size=tune.grid_search([500, 1000, 1500]),
-                # num_sgd_iter=tune.grid_search([10, 20, 30]),
-                # entropy_coeff= tune.grid_search([0, 0.005, 0.01]),
-                # kl_coeff= tune.grid_search([0.3, 0.4, 0.5]),
-                # clip_param= tune.grid_search([0.1, 0.2, 0.3])
-                # )
+#                 lambda_= tune.grid_search([0.95, 1])
+#                 sgd_minibatch_size=tune.grid_search([500, 1000]),
+#                 num_sgd_iter=tune.grid_search([10, 20]),
+#                 entropy_coeff= tune.grid_search([0, 0.01]),
+#                 kl_coeff= tune.grid_search([0.3, 0.5]),
+#                 clip_param= tune.grid_search([0.1, 0.3])
+#                 )
 
 config.training(
                 lambda_= 0.95,
@@ -93,7 +80,8 @@ config.training(
                 num_sgd_iter= 10,
                 entropy_coeff= 0.0,
                 kl_coeff= 0.5,
-                clip_param= 0.3
+                clip_param= 0.3,
+                vf_clip_param=np.inf
                 )
 
 

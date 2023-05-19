@@ -12,8 +12,7 @@ class FurySimEnv(gym.Env):
         self.settings.Load(True)
         aura_count = len(Auras.Labels)
         target_aura_count = len(TargetAuras.Labels)
-        # Rage, sim duration, melee swing time [MH, OH], GCD ready time shape count,
-        # last action
+        # Rage, sim duration, melee swing time [MH, OH], GCD ready time shape count, last action
         other_count = 6
         Spells.register()
         self.spells_count = len(Spells.registered_actions())
@@ -52,7 +51,7 @@ class FurySimEnv(gym.Env):
         if needs_input :
             # Reward agent for using bloodsurge slam
             if action == 2 and Auras.get_dur("Bloodsurge Proc") > 0:
-                reward += 0.5
+                reward += 10000
                 
             # Last index of action means DoNothing
             if action == self.spells_count:
@@ -65,7 +64,7 @@ class FurySimEnv(gym.Env):
         damage_this_step = damage_done - self.last_damage_done
         self.last_damage_done = damage_done
 
-        reward += dps / 10000
+        reward += dps
 
         observation = self._get_obs(last_action=action)
         
