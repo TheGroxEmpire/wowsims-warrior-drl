@@ -47,7 +47,7 @@ class MyCallbacks(DefaultCallbacks):
 os.environ["TUNE_ORIG_WORKING_DIR"] = os.getcwd()
 
 algorithm_version = 'PPO'
-comment_suffix = "baseline"
+comment_suffix = "negative-failed-bloodsurge-reward"
 
 algorithm_config = {
     'PPO': PPOConfig(),
@@ -60,7 +60,7 @@ config = algorithm_config[algorithm_version]
 config.num_gpus = 0
 config.log_level = "INFO"
 config.environment(env="FurySimEnv")
-config.batch_mode = "complete_episodes"
+config.batch_mode = "complete_episodes" 
 config.rollouts(num_rollout_workers=11)
 config.callbacks(MyCallbacks)
 # config.enable_connectors = False
@@ -78,7 +78,7 @@ config.training(
                 lambda_= 0.95,
                 sgd_minibatch_size= 500,
                 num_sgd_iter= 10,
-                entropy_coeff= 0.0,
+                entropy_coeff= 0.0005,
                 kl_coeff= 0.5,
                 clip_param= 0.3,
                 vf_clip_param=np.inf

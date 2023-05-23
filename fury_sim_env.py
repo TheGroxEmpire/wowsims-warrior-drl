@@ -52,6 +52,8 @@ class FurySimEnv(gym.Env):
             # Reward agent for using bloodsurge slam
             if action == 2 and Auras.get_dur("Bloodsurge Proc") > 0:
                 reward += 10000
+            elif action == 2:
+                reward -= 10000
                 
             # Last index of action means DoNothing
             if action == self.spells_count:
@@ -64,9 +66,9 @@ class FurySimEnv(gym.Env):
         damage_this_step = damage_done - self.last_damage_done
         self.last_damage_done = damage_done
 
-        reward += dps
+        reward += dps + (damage_this_step/2)
 
-        observation = self._get_obs(last_action=action)
+        observation = self._get_obs(action)
         
         info = {'dps': dps, 'spell metrics': wowsims.getSpellMetrics(), 'debug log': [wowsims.getCurrentTime(), action, cast, damage_this_step, damage_done, observation[1]]}
             
